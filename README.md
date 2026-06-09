@@ -1,91 +1,118 @@
-
 # PCI DSS v4.0.1 Security Lab
 
 A realistic enterprise-style PCI DSS v4.0.1 laboratory environment designed to simulate a secure payment card infrastructure.
 
-This project was built to gain hands-on experience with network segmentation, Cardholder Data Environment (CDE) protection, centralized monitoring, vulnerability management, privileged access control, and secure payment processing workflows.
+This project was built during my cybersecurity internship to gain hands-on experience with PCI DSS controls, network segmentation, secure payment processing, centralized monitoring, privileged access management, vulnerability validation, and evidence collection.
 
-The objective was not only to deploy security technologies, but also to validate PCI DSS controls through attack simulation, monitoring, detection, and evidence collection.
-
----
-
-## Lab Objectives
-
-* Design a segmented PCI DSS environment
-* Build and protect a Cardholder Data Environment (CDE)
-* Secure cardholder data using encryption and key management
-* Implement centralized monitoring and alerting
-* Enforce identity and access management controls
-* Validate security controls through offensive testing
-* Produce evidence aligned with PCI DSS requirements
+The objective was not only to deploy security technologies, but also to think like both an attacker and a SOC analyst by validating security controls through monitoring, detection, attack simulation, and compliance-oriented evidence gathering.
 
 ---
 
-# Environment Overview
+# Architecture Overview
 
-## Firewall & Network Security
+![PCI DSS Lab Topology](architecture/lab_topology.png)
 
-pfSense acts as the central security gateway between all zones.
+The environment is divided into multiple security zones and protected through a centralized pfSense firewall.
 
-### Network Zones
+### Security Zones
 
-| Zone          | Network          | Gateway         |
-| ------------- | ---------------- | --------------- |
-| Internal Zone | 192.168.40.0/24  | 192.168.40.254  |
-| DMZ Zone      | 192.168.50.0/24  | 192.168.50.254  |
-| Attack Zone   | 192.168.60.0/24  | 192.168.60.254  |
-| CDE Zone      | 192.168.70.0/24  | 192.168.70.254  |
-| Backup Zone   | 192.168.100.0/24 | 192.168.100.254 |
+| Zone                              | Network          |
+| --------------------------------- | ---------------- |
+| Internal Zone                     | 192.168.40.0/24  |
+| DMZ Zone                          | 192.168.50.0/24  |
+| Attack Zone                       | 192.168.60.0/24  |
+| Cardholder Data Environment (CDE) | 192.168.70.0/24  |
+| Backup Zone                       | 192.168.100.0/24 |
 
-Security Controls:
+### Key Security Controls
 
-* Default deny firewall policy
-* Network segmentation
-* Inter-zone access restrictions
-* OpenVPN remote access
+* pfSense Firewall
+* Network Segmentation
+* Default Deny Security Model
 * Suricata IDS/IPS
-* Dedicated security zones
+* OpenVPN Remote Access
+* Multi-Factor Authentication
+* Wazuh SIEM
+* HashiCorp Vault
+* ModSecurity WAF
 
 ---
 
-# Internal Zone
+# Cardholder Data Flow
 
-Network: 192.168.40.0/24
+![Cardholder Data Flow](architecture/data_flow_diagram.png)
 
-Systems:
+The payment workflow demonstrates how cardholder data is securely processed, encrypted, stored, and monitored.
+
+### Transaction Flow
+
+Customer
+
+↓
+
+Web Server (DMZ)
+
+↓
+
+Application Server (CDE)
+
+↓
+
+HashiCorp Vault
+
+↓
+
+Encrypted Database Storage
+
+↓
+
+Backup Server
+
+### Security Controls
+
+* CVV is never stored.
+* PAN values are displayed in truncated format.
+* Cardholder data is encrypted before storage.
+* Encryption keys are managed through HashiCorp Vault.
+* Application authenticates to Vault using AppRole.
+* Database storage is protected using disk encryption.
+* Administrative access requires MFA.
+
+---
+
+# Lab Environment
+
+## Internal Zone
+
+### Systems
 
 * Active Directory Domain Controller
 * Windows Server 2016
 * Windows 10 Client
 
-Domain:
-
-emin.com.local
-
-Implemented Controls:
+### Implemented Controls
 
 * Group Policies
 * Password Policies
 * Account Lockout Policies
 * Session Timeout Controls
+* Centralized Authentication
 
 ---
 
-# DMZ Zone
+## DMZ Zone
 
-Network: 192.168.50.0/24
+### Systems
 
-Systems:
-
-* Wazuh SIEM Server
+* Wazuh SIEM
 * HashiCorp Vault
 * OpenLDAP
 * Jump Server
 * Web Server
 * Linux Server
-* Administrative Windows Workstation
+* Administrative Workstation
 
-Security Features:
+### Implemented Controls
 
 * Reverse Proxy
 * ModSecurity WAF
@@ -94,130 +121,184 @@ Security Features:
 
 ---
 
-# Cardholder Data Environment (CDE)
+## Cardholder Data Environment (CDE)
 
-Network: 192.168.70.0/24
-
-Systems:
+### Systems
 
 * Application Server
 * Database Server
 
-This zone contains systems that process and store cardholder data.
+### Implemented Controls
 
-Security Controls:
-
-* Dedicated isolated network
-* Restricted access paths
-* Jump Server access requirement
-* MFA protected administrative access
-* Disk encryption
-* Centralized monitoring
+* Network Isolation
+* MFA Protected Administration
+* Jump Server Access
+* Disk Encryption
+* Centralized Monitoring
+* Encrypted Data Storage
 
 ---
 
-# Payment Processing Workflow
+## Attack Zone
 
-1. User accesses payment page.
-2. Payment page communicates with Flask application.
-3. Application authenticates to HashiCorp Vault using AppRole.
-4. Vault provides encryption material.
-5. Sensitive card data is encrypted.
-6. Encrypted data is stored in the database.
-7. CVV data is never stored.
-8. PAN data is displayed in truncated format.
+### Systems
 
----
+* Kali Linux
+* Metasploitable 2
 
-# Identity & Access Management
+### Activities
 
-Active Directory
-
-* Centralized authentication
-* Password complexity requirements
-* Account lockout controls
-
-LDAP
-
-* User lifecycle management
-* Authentication services
-* Directory monitoring
-
-Administrative Access
-
-* Jump Server
-* MFA authentication
-* OTP verification
-* Session monitoring
+* Vulnerability Validation
+* Detection Testing
+* Attack Simulation
+* Security Control Verification
 
 ---
 
-# Security Monitoring
+## Backup Zone
 
-All servers are onboarded to Wazuh.
+### Systems
 
-Monitored Events:
+* Backup Server
 
+### Implemented Controls
+
+* Segregated Backup Storage
+* Automated Database Backups
+* Recovery Validation
+* Restricted Access
+
+---
+
+# Payment Security Architecture
+
+The payment application was developed to simulate a PCI DSS-aligned payment workflow.
+
+### Security Features
+
+* Flask Application Architecture
+* Dedicated Python Virtual Environment
+* AppRole Authentication
+* HashiCorp Vault Integration
+* Encryption Before Storage
+* Encrypted Database Records
+* Disk-Level Encryption
+
+### Sensitive Data Handling
+
+| Data Type       | Storage Method    |
+| --------------- | ----------------- |
+| CVV             | Not Stored        |
+| PAN             | Truncated Display |
+| Card Data       | Encrypted         |
+| Encryption Keys | HashiCorp Vault   |
+
+---
+
+# Monitoring & Detection
+
+All systems are integrated with Wazuh SIEM for centralized monitoring.
+
+### Monitored Security Events
+
+* Authentication Failures
+* LDAP Changes
+* Root Activity
+* Privilege Escalation
+* Administrative Actions
+* Malware Events
+* WAF Events
+* Vault Access Attempts
 * File Integrity Monitoring (FIM)
-* Root activity
-* Privilege escalation
-* LDAP modifications
-* WAF events
-* Malware detection
-* Authentication failures
-* Vault access attempts
-* Administrative actions
 
-Alerting:
+---
 
-* Email notifications
-* Dashboard monitoring
-* Correlation rules
-* Custom detection rules
+# Detection Use Cases
+
+## File Integrity Monitoring
+
+Detection of unauthorized modifications to critical operating system files.
+
+Examples:
+
+* /etc/passwd
+* /etc/shadow
+* System configuration files
+
+![FIM Alert](screenshots/wazuh/fim_alert.png)
+
+---
+
+## LDAP Monitoring
+
+Detection of:
+
+* User Creation
+* User Deletion
+* Group Modifications
+* Privilege Changes
+
+![LDAP Alert](screenshots/ldap/ldap_user_creation.png)
+
+---
+
+## HashiCorp Vault Monitoring
+
+Detection of:
+
+* Unauthorized Access Attempts
+* Failed Authentication Events
+* Secret Access Activity
+* Policy Violations
+
+![Vault Alert](screenshots/vault/vault_unauthorized_access.png)
+
+---
+
+## Privileged Session Monitoring
+
+Administrative activity monitored through Jump Server.
+
+Detection Examples:
+
+* Administrative Login
+* File Transfers
+* Session Activity
+* Privileged Commands
+
+![Jump Server Alert](screenshots/jumpserver/privileged_session.png)
 
 ---
 
 # Endpoint Protection
 
-Linux Systems
+### Linux Systems
 
 * ClamAV
-* Scheduled malware scans
+* Scheduled Malware Scans
 
-Windows Systems
+### Windows Systems
 
 * Microsoft Defender
 
----
+### Monitoring
 
-# Time Synchronization
-
-Chrony is deployed across the environment.
-
-NTP source:
-
-pfSense NTP Pool
-
-Benefits:
-
-* Accurate log correlation
-* Consistent forensic timelines
-* Compliance alignment
+Security events are forwarded to Wazuh for centralized visibility.
 
 ---
 
-# Vulnerability Management
+# Vulnerability Validation
 
-Credentialed vulnerability assessments were performed using Nessus Professional.
+Nessus Professional was deployed inside the Attack Zone.
 
-Activities:
+### Activities
 
-* Full infrastructure scanning
-* Vulnerability validation
-* Remediation verification
-* Evidence collection
+* Credentialed Vulnerability Assessments
+* Infrastructure Validation
+* Security Control Verification
+* Remediation Validation
 
-Assessment targets:
+### Assessment Targets
 
 * Internal Zone
 * DMZ Systems
@@ -226,46 +307,116 @@ Assessment targets:
 
 ---
 
-# Backup & Recovery
+# PCI DSS Requirement Coverage
 
-Dedicated Backup Zone:
+| Requirement    | Status                |
+| -------------- | --------------------- |
+| Requirement 1  | Implemented           |
+| Requirement 2  | Implemented           |
+| Requirement 3  | Implemented           |
+| Requirement 4  | Implemented           |
+| Requirement 5  | Implemented           |
+| Requirement 6  | Implemented           |
+| Requirement 7  | Implemented           |
+| Requirement 8  | Implemented           |
+| Requirement 9  | Out of Scope          |
+| Requirement 10 | Implemented           |
+| Requirement 11 | Implemented           |
+| Requirement 12 | Partially Implemented |
 
-192.168.100.0/24
+Detailed control mapping is available at:
 
-Backup Server:
+```text
+pci_dss_mapping/pci_controls.md
+```
 
-192.168.100.10
+---
 
-Features:
+# Project Structure
 
-* Database backup jobs
-* Segregated backup storage
-* Recovery testing
-* Encrypted storage
+```text
+PCI-DSS-LAB
+│
+├── README.md
+│
+├── architecture
+│   ├── lab_topology.png
+│   └── data_flow_diagram.png
+│
+├── screenshots
+│   ├── wazuh
+│   ├── vault
+│   ├── ldap
+│   ├── jumpserver
+│   └── payment_app
+│
+├── docs
+│   ├── network_segmentation.md
+│   ├── payment_workflow.md
+│   └── monitoring_detection.md
+│
+└── pci_dss_mapping
+    └── pci_controls.md
+```
+
+---
+
+# Documentation
+
+Additional technical documentation:
+
+* Network Segmentation
+* Payment Workflow
+* Monitoring & Detection
+* PCI DSS Control Mapping
 
 ---
 
 # Technologies Used
+
+### Security
 
 * pfSense
 * Suricata
 * Wazuh
 * OpenSearch
 * HashiCorp Vault
-* OpenLDAP
-* Active Directory
-* OpenVPN
 * ModSecurity
-* Nginx
+* OpenVPN
+
+### Identity & Access Management
+
+* Active Directory
+* OpenLDAP
+* JumpServer
+* MFA (OTP)
+
+### Infrastructure
+
+* Ubuntu Server
+* Windows Server 2016
+* Windows 10
+* Kali Linux
+* Metasploitable 2
+
+### Application Stack
+
 * Flask
+* Nginx
+* Python
 * MySQL
-* Chrony
+
+### Endpoint Protection
+
 * ClamAV
+* Microsoft Defender
+
+### Vulnerability Management
+
 * Nessus Professional
 
 ---
 
 # Disclaimer
 
-This project was developed for educational, research, and defensive security purposes to demonstrate PCI DSS security concepts and practical implementation techniques.
-
+This project was developed for educational, research, and defensive security purposes to demonstrate practical PCI DSS security concepts and implementation techniques within a controlled laboratory environment.
