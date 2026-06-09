@@ -238,7 +238,7 @@ Detection of:
 * Group Modifications
 * Privilege Changes
 
-![LDAP Alert](screenshots/ldap/ldap_user_creation.png)
+![LDAP Alert](screenshots/wazuh/wazuh-ldap_log.png)
 
 ---
 
