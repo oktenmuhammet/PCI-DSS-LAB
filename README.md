@@ -225,7 +225,7 @@ Examples:
 * /etc/shadow
 * System configuration files
 
-![FIM Alert](screenshots/wazuh/fim_alert.png)
+![FIM Alert](screenshots/wazuh/email_alert.png)
 
 ---
 
