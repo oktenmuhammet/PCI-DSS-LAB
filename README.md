@@ -251,7 +251,7 @@ Detection of:
 * Secret Access Activity
 * Policy Violations
 
-![Vault Alert](screenshots/vault/vault_unauthorized_access.png)
+![Vault Alert](screenshots/vault/vault.png)
 
 ---
 
