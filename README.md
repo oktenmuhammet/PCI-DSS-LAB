@@ -266,7 +266,7 @@ Detection Examples:
 * Session Activity
 * Privileged Commands
 
-![Jump Server Alert](screenshots/jumpserver/privileged_session.png)
+![Jump Server Alert](screenshots/jumpserver/7.2.1.b-jumpserver_user_list.png)
 
 ---
 
